@@ -11,7 +11,7 @@ from sklearn.metrics import confusion_matrix
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs, lr):
+def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
     model.train()
     print("Start training")
     max_f1 = 0
