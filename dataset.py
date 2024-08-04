@@ -76,8 +76,6 @@ class VulFixDataset(Dataset):
             mes = self.data.iloc[i]["commit_message"]
             code = self.data.iloc[i]["diff"]
             info, mask = get_input_and_mask(mes, code, MAX_LENGTH, tokenizer)
-            print(type(info), type(mask))
-            break
             self.infos.append(info)
             self.masks.append(mask)
             self.labels.append(self.data.iloc[i]["label"])
