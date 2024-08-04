@@ -45,7 +45,7 @@ def get_input_and_mask(src, dst, max_length, tokenizer):
         ]
         mask = [1 if i < token_length else 0 for i in range(max_length)]
 
-    tokens_ids = tokenizer.convert_tokens_to_ids(new_tokens)
+    tokens_ids = np.array(tokenizer.convert_tokens_to_ids(new_tokens))
     mask = np.array(mask)
     if len(tokens_ids) > max_length:
         print(len(dst_tokens))
@@ -76,6 +76,8 @@ class VulFixDataset(Dataset):
             mes = self.data.iloc[i]["commit_message"]
             code = self.data.iloc[i]["diff"]
             info, mask = get_input_and_mask(mes, code, MAX_LENGTH, tokenizer)
+            print(type(info), type(mask))
+            break
             self.infos.append(info)
             self.masks.append(mask)
             self.labels.append(self.data.iloc[i]["label"])
