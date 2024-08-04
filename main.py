@@ -81,11 +81,11 @@ if __name__ == "__main__":
     types = ["train", "valid", "test"]
 
     datasets = {
-        type+label: VulFixDataset(path.format(type, label)) for type in types for label in labels
+        t+l: VulFixDataset(path.format(t, l), t, l) for t in types for l in labels
     }
 
-    for type in types:
-        datasets[type] = ConcatDataset([datasets[type+label] for label in labels])
+    for t in types:
+        datasets[t] = ConcatDataset([datasets[t+l] for l in labels])
 
     train_loader = DataLoader(datasets["train"], batch_size=args.batch_size, shuffle=True)
     valid_loader = DataLoader(

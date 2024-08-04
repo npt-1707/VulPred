@@ -15,13 +15,13 @@ def load_data(data_path):
 tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
 
 class VulFixDataset(Dataset):
-    def __init__(self, path):
-        self.cache = f"cache/{path}"
+    def __init__(self, path, mode="train", type="pos"):
+        self.cache = f"cache/{mode}_{type}.pkl"
         if os.path.exists(self.cache):
             self.load_cache()
-            self.save_cache()
         else:
             self.data = load_data(path)
+            self.save_cache()
             
     def process(self):
         self.ids = []
