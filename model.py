@@ -3,6 +3,7 @@ import torch
 
 class CodeBERTModel(torch.nn.Module):
     def __init__(self):
+        super(CodeBERTModel, self).__init__()
         self.encoder = AutoModel.from_pretrained("microsoft/codebert-base")
         self.fc = torch.nn.Linear(768, 2)
         
