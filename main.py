@@ -19,7 +19,7 @@ def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
         print(f"Epoch {epoch+1}/{epochs}")
         total_loss = 0
         n_samples = 0
-        for idx, batch in tqdm(enumerate(train_loader)):
+        for idx, batch in enumerate(tqdm(train_loader)):
             _, infos, masks, labels = batch
             infos, masks, labels = infos.to(device), masks.to(device), labels.to(device)
             outputs = model(infos, masks)
@@ -28,7 +28,7 @@ def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
             n_samples += len(labels)
             loss.backward()
             optimizer.step()
-        
+
         print(f"Total Loss: {total_loss/len(train_loader)}")
         _, _, f1 = do_test(valid_loader, model)
         if f1 > max_f1:
@@ -38,13 +38,13 @@ def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
             torch.save(model.state_dict(), "model/model.pth")
             print("Model saved")
     print("Finished training")
-            
+
 def do_test(dataloader, model):
     model.eval()
     with torch.no_grad():
         print("Start testing")
         cfx_matrix = np.array([[0, 0], [0, 0]])
-        for idx, batch in tqdm(enumerate(dataloader)):
+        for idx, batch in enumerate(tqdm(dataloader)):
             _, infos, masks, labels = batch
             infos, masks, labels = infos.to(device), masks.to(device), labels.to(device)
             outputs = model(infos, masks)
@@ -52,7 +52,7 @@ def do_test(dataloader, model):
             output = F.softmax(outputs)
             output = outputs.detach().cpu().numpy()[:, 1]
             pred = np.where(output >= 0.5, 1, 0)
-            label = label.detach().cpu().numpy()
+            label = labels.detach().cpu().numpy()
 
             cfx_matrix += confusion_matrix(label, pred, labels = [0, 1])
 
@@ -62,7 +62,6 @@ def do_test(dataloader, model):
         f1 = 2 * precision * recall / (precision + recall)
         print("[EVAL] Precision {}, Recall {}, F1 {}".format(precision, recall, f1))
     return precision, recall, f1
-
 
 
 def load_args():
