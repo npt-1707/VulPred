@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 import os
 from tqdm import tqdm
+import numpy as np
 
 MAX_LENGTH = 512
 
@@ -32,10 +33,10 @@ def get_input_and_mask(src, dst, max_length, tokenizer):
     if token_length > max_length:
         src_length = len(src_tokens)
         dst_length = len(dst_tokens)
-        if src_length > max_length-2:
+        if src_length >= max_length-2:
             new_tokens = [tokenizer.cls_token] + src_tokens[:max_length-2] + [tokenizer.sep_token]
         else:
-            new_tokens = [tokenizer.cls_token] + src_tokens + [tokenizer.sep_token] + dst_tokens[:max_length-2-src_length] + [tokenizer.sep_token]
+            new_tokens = [tokenizer.cls_token] + src_tokens + [tokenizer.sep_token] + dst_tokens[:max_length-3-src_length] + [tokenizer.sep_token]
         mask = [1 for i in range(max_length)]
     else:
         new_tokens = [
@@ -45,6 +46,7 @@ def get_input_and_mask(src, dst, max_length, tokenizer):
         mask = [1 if i < token_length else 0 for i in range(max_length)]
 
     tokens_ids = tokenizer.convert_tokens_to_ids(new_tokens)
+    mask = np.array(mask)
     if len(tokens_ids) > max_length:
         print(len(dst_tokens))
         print(len(src_tokens))
@@ -71,8 +73,8 @@ class VulFixDataset(Dataset):
         self.labels = []
         for i in tqdm(range(len(self.data))):
             self.ids.append(self.data.iloc[i]["commit_id"])
-            mes = tokenizer.tokenize(self.data.iloc[i]["commit_message"])
-            code = tokenizer.tokenize(self.data.iloc[i]["diff"])
+            mes = self.data.iloc[i]["commit_message"]
+            code = self.data.iloc[i]["diff"]
             info, mask = get_input_and_mask(mes, code, MAX_LENGTH, tokenizer)
             self.infos.append(info)
             self.masks.append(mask)
