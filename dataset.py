@@ -21,9 +21,11 @@ class VulFixDataset(Dataset):
             self.load_cache()
         else:
             self.data = load_data(path)
+            self.process()
             self.save_cache()
             
     def process(self):
+        print("Processing data...")
         self.ids = []
         self.infos = []
         self.labels = []
