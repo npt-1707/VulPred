@@ -1,7 +1,7 @@
 from transformers import AutoModel
 import torch
 
-class CodeBERTModel:
+class CodeBERTModel(torch.nn.Module):
     def __init__(self):
         self.model = AutoModel.from_pretrained("microsoft/codebert-base")
         self.fc = torch.nn.Linear(768, 2)
