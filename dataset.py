@@ -3,6 +3,7 @@ from transformers import AutoTokenizer
 import pandas as pd
 import pickle
 import os
+from tqdm import tqdm
 
 MAX_LENGTH = 512
 
@@ -29,7 +30,7 @@ class VulFixDataset(Dataset):
         self.ids = []
         self.infos = []
         self.labels = []
-        for i in range(self.data):
+        for i in tqdm(range(len(self.data))):
             self.ids.append(self.data.iloc[i]["commit_id"])
             mes = tokenizer.tokenize(self.data.iloc[i]["message"])
             code = tokenizer.tokenize(self.data.iloc[i]["code"])
