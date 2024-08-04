@@ -32,8 +32,8 @@ class VulFixDataset(Dataset):
         self.labels = []
         for i in tqdm(range(len(self.data))):
             self.ids.append(self.data.iloc[i]["commit_id"])
-            mes = tokenizer.tokenize(self.data.iloc[i]["message"])
-            code = tokenizer.tokenize(self.data.iloc[i]["code"])
+            mes = tokenizer.tokenize(self.data.iloc[i]["commit_message"])
+            code = tokenizer.tokenize(self.data.iloc[i]["diff"])
             if len(code) > MAX_LENGTH-3-len(mes):
                 code = code[:MAX_LENGTH-3-len(mes)]
             info = [tokenizer.cls_token] + mes + [tokenizer.sep_token] + code + [tokenizer.sep_token]
