@@ -26,12 +26,10 @@ def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
             loss = criterion(outputs, labels)
             total_loss += outputs.shape[0]
             n_samples += len(labels)
-            if idx % 10 == 0:
-                print(f"Loss: {total_loss/n_samples}")
             loss.backward()
             optimizer.step()
         
-        print(f"Loss: {total_loss/len(train_loader)}")
+        print(f"Total Loss: {total_loss/len(train_loader)}")
         _, _, f1 = do_test(valid_loader, model)
         if f1 > max_f1:
             max_f1 = f1
@@ -47,7 +45,6 @@ def do_test(dataloader, model):
         print("Start testing")
         cfx_matrix = np.array([[0, 0], [0, 0]])
         for idx, batch in tqdm(enumerate(dataloader)):
-            _, infos, labels = batch
             _, infos, masks, labels = batch
             infos, masks, labels = infos.to(device), masks.to(device), labels.to(device)
             outputs = model(infos, masks)
