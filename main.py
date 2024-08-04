@@ -1,6 +1,6 @@
 from dataset import VulFixDataset
 from torch.utils.data import ConcatDataset, DataLoader
-from transformers import BertModel
+from model import CodeBERTModel
 from argparse import ArgumentParser
 import torch
 import numpy as np
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         datasets["test"], batch_size=args.batch_size, shuffle=False
     )
 
-    model = BertModel().from_pretrained("microsoft/codebert-base")
+    model = CodeBERTModel()
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     criterion = torch.nn.CrossEntropyLoss()
