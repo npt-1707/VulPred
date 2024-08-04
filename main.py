@@ -20,9 +20,9 @@ def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
         total_loss = 0
         n_samples = 0
         for idx, batch in tqdm(enumerate(train_loader)):
-            _, infos, labels = batch
-            infos, labels = infos.to(device), labels.to(device)
-            outputs = model(infos)
+            _, infos, masks, labels = batch
+            infos, masks, labels = infos.to(device), masks.to(device), labels.to(device)
+            outputs = model(infos, masks)
             loss = criterion(outputs, labels)
             total_loss += outputs.shape[0]
             n_samples += len(labels)
@@ -32,7 +32,7 @@ def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
             optimizer.step()
         
         print(f"Loss: {total_loss/len(train_loader)}")
-        precision, recall, f1 = do_test(valid_loader, model)
+        _, _, f1 = do_test(valid_loader, model)
         if f1 > max_f1:
             max_f1 = f1
             if not os.path.exists("model"):
@@ -43,24 +43,27 @@ def do_train(model, optimizer, criterion, train_loader, valid_loader, epochs):
             
 def do_test(dataloader, model):
     model.eval()
-    cfx_matrix = np.array([[0, 0], [0, 0]])
-    for idx, batch in tqdm(enumerate(dataloader)):
-        _, infos, labels = batch
-        infos, labels = infos.to(device), labels.to(device)
-        outputs = model(infos)
+    with torch.no_grad():
+        print("Start testing")
+        cfx_matrix = np.array([[0, 0], [0, 0]])
+        for idx, batch in tqdm(enumerate(dataloader)):
+            _, infos, labels = batch
+            _, infos, masks, labels = batch
+            infos, masks, labels = infos.to(device), masks.to(device), labels.to(device)
+            outputs = model(infos, masks)
 
-        output = F.softmax(outputs)
-        output = outputs.detach().cpu().numpy()[:, 1]
-        pred = np.where(output >= 0.5, 1, 0)
-        label = label.detach().cpu().numpy()
+            output = F.softmax(outputs)
+            output = outputs.detach().cpu().numpy()[:, 1]
+            pred = np.where(output >= 0.5, 1, 0)
+            label = label.detach().cpu().numpy()
 
-        cfx_matrix += confusion_matrix(label, pred, labels = [0, 1])
+            cfx_matrix += confusion_matrix(label, pred, labels = [0, 1])
 
-    (tn, fp), (fn, tp) = cfx_matrix
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
-    f1 = 2 * precision * recall / (precision + recall)
-    print("[EVAL] Precision {}, Recall {}, F1 {}".format(precision, recall, f1))
+        (tn, fp), (fn, tp) = cfx_matrix
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        f1 = 2 * precision * recall / (precision + recall)
+        print("[EVAL] Precision {}, Recall {}, F1 {}".format(precision, recall, f1))
     return precision, recall, f1
 
 
